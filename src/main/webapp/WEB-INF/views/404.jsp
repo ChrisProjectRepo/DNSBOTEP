@@ -47,7 +47,7 @@ a:visited		{font:8pt/11pt verdana; color:#4e4e4e}
                 Windows can examine your network and automatically discover network 
                 connection settings.<BR>
                 If you would like Windows to try and discover them,<br>
-                click <a  href="javascript:history.go(0);" > <img src="gfx/search2.gif" width="16" height="16" border="0">-detect
+                click <a  href="javascript:history.go(0);" > <img src="gfx/search2.gif" width="16" height="16" border="0">detect
                 Network Settings</a>. </li>
               <li id="instructionsText5"> Some sites require 128-bit connection security.
                 Click the <b>Help</b> menu and then click <b>About Internet Explorer</b> to determine what strength security you have installed. 
@@ -55,7 +55,7 @@ a:visited		{font:8pt/11pt verdana; color:#4e4e4e}
               <li id="instructionsText4"> If you are trying to reach a secure 
                 site, make sure your Security settings can support it. Click the <b>Tools</b> menu, and then click <b>Internet Options</b>. On the advanced
 				tab, scroll to the Security section and check settings for SSL 2.0, SSL 3.0, TLS 1.0, PCT 1.0.</li>
-              <li id="list3">Click the <img src="gfx/back.gif" width="12" height="16" border="0">Back 
+              <li id="list3">Click the <a href="javascript:history.go(0);" ><img src="gfx/back.gif" width="12" height="16" border="0"></a>Back 
                 button to try another link. </li>
             </ul>
             <p><br>

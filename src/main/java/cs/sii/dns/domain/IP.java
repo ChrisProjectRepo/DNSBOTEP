@@ -4,16 +4,12 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
-
 @Component
 public class IP implements Cloneable{
     private String ip;
-    
-    
-    public IP() {
-        this.ip = "192.168.0.38";
+
+    public IP(){
     }
-    
     
     public IP(String ip) {
         this.ip = ip;

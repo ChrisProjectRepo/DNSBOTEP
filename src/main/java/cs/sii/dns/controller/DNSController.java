@@ -69,7 +69,7 @@ public class DNSController {
 	 */
 	@RequestMapping(value = "/ciaosonounumano")
 	public ModelAndView connectHuman() {
-		return new ModelAndView("https://" + ipCec.getIp() + ":8443/");
+		return new ModelAndView("redirect:https://" + ipCec.getIp() + ":8443/");
 	}
 
 	/**

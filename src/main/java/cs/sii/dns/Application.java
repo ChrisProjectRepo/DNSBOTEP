@@ -27,7 +27,7 @@ public class Application extends SpringBootServletInitializer {
     // IP first C&C
     @Bean
     public IP IP(){
-		return new IP ("25.52.149.123");
+		return new IP ("25.4.67.50");
     }
     
     @Bean
